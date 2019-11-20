@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>任务结果列表</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/element.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/web_controller.css') }}">
+    <script src="{{ url_for('static',filename='js/vue.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/element.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/vue-resource.js') }}"></script>
+    {#    <script src="{{ url_for('static',filename='js/axios.min.js') }}"></script>#}
+</head>
+<body>
+<h3 style="text-align: center;">任务结果列表</h3>
+
+{% raw %}
+<div id="app">
+    <template>
+        <el-table ref="filterTable" :data="tableData" border stripe style="width: 100%" height="700">
+            <el-table-column
+                    type="index"
+                    :index="1"
+                    fixed="left"
+                    width="150"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="table"
+                    label="表名"
+                    sortable
+                    width="350"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="app_id"
+                    label="应用编号"
+                    width="260"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="inc_size"
+                    label="增量大小(MB)"
+                    sortable
+                    width="150"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="status"
+                    label="任务状态"
+                    width="120"
+                    sortable
+                    column-key="status"
+                    :filters="[{text: 'UNDEFINED', value: 'UNDEFINED'}, {text: 'SUCCEEDED', value: 'SUCCEEDED'}, {text: 'FAILED', value: 'FAILED'}, {text: 'KILLED', value: 'KILLED'}, {text: 'null', value: null}]"
+                    :filter-method="filterHandler"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="driver_memory"
+                    label="Driver memory"
+                    width="150"
+            >
+            </el-table-column>
+
+            <el-table-column
+                    prop="executor_memory"
+                    label="Executor memory"
+                    width="150"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="executor_cores"
+                    label="Executor cores"
+                    width="150"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="num_executors"
+                    label="Num executors"
+                    width="150"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="hdfs_path"
+                    label="HDFS path"
+                    width="700"
+            >
+            </el-table-column>
+            <el-table-column
+                    label="诊断"
+                    width="80"
+                    fixed="right"
+            >
+                <template slot-scope="scope">
+                    <el-button @click="handleClick(scope.row);dialogTableVisible = true" type="text" size="small">查看
+                    </el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+
+
+        <!-- dialog div -->
+        <el-dialog title="诊断信息" :visible.sync="dialogTableVisible">
+            <div v-html="gridData" class="text-wrapper"></div>
+        </el-dialog>
+    </template>
+
+</div>
+
+{% endraw %}
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            tableData: {{ res_list|safe }},
+            gridData: [],
+            dialogTableVisible: false
+
+        },
+        methods: {
+            resetStatusFilter() {
+                this.$refs.filterTable.clearFilter('status');
+            },
+            clearFilter() {
+                this.$refs.filterTable.clearFilter();
+            },
+            formatter(row, column) {
+                return row.address;
+            },
+            filterTag(value, row) {
+                return row.tag === value;
+            },
+            filterHandler(value, row, column) {
+                const property = column['property'];
+                return row[property] === value;
+            },
+            handleClick(row) {
+                console.log(row.app_id);
+                let url = "app_info/" + row.app_id;
+
+                this.$http.get(url).then(function (res) {
+                    {#console.log(res.data);#}
+                    this.gridData = res.data
+                });
+            },
+            open() {
+                this.$alert('这是一段内容', '标题名称', {
+                    confirmButtonText: '确定',
+                    callback: action => {
+                        this.$message({
+                            type: 'info',
+                            message: `action: ${action}`
+                        });
+                    }
+                });
+            }
+        }
+    })
+</script>
+
+</body>
+</html>

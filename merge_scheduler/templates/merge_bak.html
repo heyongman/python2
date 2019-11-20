@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>任务结果列表</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/element.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/web_controller.css') }}">
+    <script src="{{ url_for('static',filename='js/vue.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/element.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/vue-resource.js') }}"></script>
+    {#    <script src="{{ url_for('static',filename='js/axios.min.js') }}"></script>#}
+</head>
+<body>
+<h2 style="text-align: center;">任务结果列表</h2>
+<div id="app">
+    <template>
+        <p>
+            <el-button @click="resetStatusFilter">清除状态过滤器</el-button>
+        </p>
+        <!--        <el-button @click="clearFilter">清除所有过滤器</el-button>-->
+        <el-table ref="filterTable" :data="tableData" border stripe style="width: 100%">
+            <el-table-column
+                    type="index"
+                    :index="1"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="table"
+                    label="表名"
+                    sortable
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="app_id"
+                    label="应用编号"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="hdfs_path"
+                    label="路径"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="status"
+                    label="任务状态"
+                    width="120"
+                    sortable
+                    column-key="status"
+                    :filters="[{text: 'UNDEFINED', value: 'UNDEFINED'}, {text: 'SUCCEEDED', value: 'SUCCEEDED'}, {text: 'FAILED', value: 'FAILED'}, {text: 'KILLED', value: 'KILLED'}, {text: 'null', value: null}]"
+                    :filter-method="filterHandler"
+            >
+            </el-table-column>
+            <el-table-column
+                    label="诊断"
+                    width="80"
+            >
+                <template slot-scope="scope">
+                    <el-button @click="handleClick(scope.row);dialogTableVisible = true" type="text" size="small">查看
+                    </el-button>
+                    {#                    <el-button type="text" size="small">编辑</el-button>#}
+                </template>
+            </el-table-column>
+        </el-table>
+
+
+        <!-- Table -->
+{#        <el-button type="text" @click="dialogTableVisible = true">打开嵌套表格的 Dialog</el-button>#}
+{#        <el-button type="text" @click="sendJsonP(scope.row)">测试</el-button>#}
+{#        <el-button type="text" @click="open()">测试</el-button>#}
+
+        <el-dialog title="诊断信息" :visible.sync="dialogTableVisible">
+            <div v-html="gridData" class="text-wrapper"></div>
+{#            <el-table :data="gridData">#}
+{#                <el-table-column property="id" label="ID" width="150"></el-table-column>#}
+{#                <el-table-column property="name" label="Name" width="200"></el-table-column>#}
+{#                <el-table-column property="diagnostics" label="Diagnostics"></el-table-column>#}
+{#            </el-table>#}
+        </el-dialog>
+    </template>
+
+{#    <div v-html="test_text" class="text-wrapper"></div>#}
+
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            {#message: 'Hello Vue.js!'#}
+            {#message: {{ request.res_list|safe }}#}
+            tableData: {{ res_list|safe }},
+            gridData: [{
+                id: '2016-05-02',
+                name: '王小虎',
+                diagnostics: '上海市普陀区金沙江路 1518 弄'
+            }, {
+                id: '2016-05-04',
+                name: '王小虎',
+                diagnostics: '上海市普陀区金沙江路 1518 弄'
+            }],
+            dialogTableVisible: false
+
+        },
+        methods: {
+            resetStatusFilter() {
+                this.$refs.filterTable.clearFilter('status');
+            },
+            clearFilter() {
+                this.$refs.filterTable.clearFilter();
+            },
+            formatter(row, column) {
+                return row.address;
+            },
+            filterTag(value, row) {
+                return row.tag === value;
+            },
+            filterHandler(value, row, column) {
+                const property = column['property'];
+                return row[property] === value;
+            },
+            handleClick(row) {
+                console.log(row.app_id);
+                let url = "app_info/" + row.app_id;
+
+                this.$http.get(url).then(function (res) {
+                    {#console.log(res.data);#}
+                    this.gridData = res.data
+                });
+            },
+            open() {
+                this.$alert('这是一段内容', '标题名称', {
+                    confirmButtonText: '确定',
+                    callback: action => {
+                        this.$message({
+                            type: 'info',
+                            message: `action: ${action}`
+                        });
+                    }
+                });
+            }
+        }
+    })
+</script>
+
+</body>
+</html>

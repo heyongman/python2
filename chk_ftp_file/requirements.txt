@@ -1,0 +1,5 @@
+.\python.exe -m pip download -d offline paramiko
+.\python.exe -m pip install --no-index --find-links=offline paramiko
+
+.\python.exe -m pip download -d offline scp
+.\python.exe -m pip install --no-index --find-links=offline scp

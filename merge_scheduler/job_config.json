@@ -1,0 +1,12 @@
+{
+  "replica_ids":["R_ZG_ZD2"],
+  "exclude_table": [""],
+  "using_table": ["*"],
+  "before_days": -20,
+  "schema_map": {"R_ZG_ZD2": "dwd_jg_imp", "R_ND_ZW2": "dwd_jg_rts"},
+  "app_ids_path": "/root/merge_scheduler/merge/appid_zg_zd.json",
+  "table_prefix": "dgi_",
+  "table_suffix": "_z_d",
+  "is_check_status": true,
+  "jar_path": "/root/merge_scheduler/hivemerge.jar"
+}
